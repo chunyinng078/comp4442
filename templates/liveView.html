@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Real-time speed monitoring</title>
+  <script src="https://cdn.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
+  <script src="https://cdn.hcharts.cn/highstock/highstock.js"></script>
+  <script src="https://cdn.hcharts.cn/highcharts/modules/exporting.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #d4d4d4;
+    }
+
+    select {
+      width: 200px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+   <!-- link to /index -->
+    <a href="/index">123</a>
+    <h1 style="text-align: center;">Real-time speed Monitoring</h1>
+    <h2 for="driverSelect">Select a Driver:</h2>
+    <select id="driverSelect">
+    </select>
+  </header>
+
+  <div>
+    <h2>Lastest record of driver:</h2>
+    <h3 id="driver_id"></h3>
+    <h3 id="car_plate"> </h3>
+    <h3 id="time"> </h3>
+    <h3 id="speed"> </h3>
+    <h3 id="overspeed"> </h3>
+  </div>
+
+  <div id="container"></div>
+
+  <div>
+    <h2 style="text-align: center;">(Data update every 30 seconds)</h2>
+  </div>
+
+  <script type="text/javascript">
+
+    
+    $(function () {
+      // get drivers list
+      $.getJSON('/drivers', function (drivers) {
+        drivers.forEach(function (driver, index) {
+          $('#driverSelect').append($('<option>', {
+            value: driver,
+            text: driver
+          }));
+          if (index === 0) { 
+            $('#driverSelect').val(driver);
+            updateChartData(driver);
+          }
+        });
+      });
+
+
+      // create chart
+      $('#container').highcharts('StockChart', {
+        chart: {
+          events: {
+            load: function () {
+
+            }
+          }
+        },
+        rangeSelector: {
+          enabled: true
+        },
+        title: {
+          text: 'Driver Data Visualization'
+        },
+        xAxis: {
+          type: 'datetime',
+          title: {
+            text: 'Time (UTC+8)'
+          }
+        },
+        yAxis: {
+          title: {
+            text: 'Speed (km/h)'
+          }
+        },
+        series: [{
+          name: 'Speed',
+          data: [],
+          tooltip: {
+            valueDecimals: 2
+          }
+        }]
+      });
+
+      // update chart data when driver is selected
+      $('#driverSelect').change(function () {
+        var driverId = $(this).val();
+        if (driverId) {
+          updateChartData(driverId);
+        }
+      });
+
+      // update chart data
+      function updateChartData(driverId) {
+        var chart = $('#container').highcharts();
+        chart.series[0].setData([]); 
+        if (window.chartUpdateInterval) clearInterval(window.chartUpdateInterval);
+
+        $.getJSON(`/liveData?driver_id=${driverId}`, function (data) {
+          var time = new Date(data[0][3] * 1000);
+          time.setHours(time.getHours() + 8);
+          var speed = parseFloat(data[0][4]);
+          chart.series[0].addPoint([time.getTime(), speed], true, false);
+
+          document.getElementById("driver_id").innerText = `Driver ID: ${data[0][1]}`;
+          document.getElementById("car_plate").innerText = `Car Plate: ${data[0][2]}`;
+
+          time.setHours(time.getHours() - 8);
+
+          document.getElementById("time").innerText = `Time: ${time}`;
+          document.getElementById("speed").innerText = `Speed: ${speed} km/h`;
+          document.getElementById("overspeed").innerText = `Over Speed: ${data[0][5] ? "Yes" : "No"}`;
+          if (data[0][5]) {
+            document.getElementById("overspeed").style.color = "red";
+          } else {
+            document.getElementById("overspeed").style.color = "black";
+          }
+
+          window.chartUpdateInterval = setInterval(function () {
+            $.getJSON(`/liveData?driver_id=${driverId}`, function (newData) {
+              var newTime = new Date(newData[0][3] * 1000);
+              newTime.setHours(newTime.getHours() + 8);
+              var newSpeed = parseFloat(newData[0][4]);
+              chart.series[0].addPoint([newTime.getTime(), newSpeed], true, false);
+              document.getElementById("driver_id").innerText = `Driver ID: ${newData[0][1]}`;
+              document.getElementById("car_plate").innerText = `Car Plate: ${newData[0][2]}`;
+              document.getElementById("time").innerText = `Time: ${newTime}`;
+              document.getElementById("speed").innerText = `Speed: ${newSpeed} km/h`;
+              document.getElementById("overspeed").innerText = `Over Speed: ${newData[0][5] ? "Yes" : "No"}`;
+
+              if (newData[0][5]) {
+                document.getElementById("overspeed").style.color = "red";
+              } else {
+                document.getElementById("overspeed").style.color = "black";
+              }
+
+            });
+          }, 30000);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
