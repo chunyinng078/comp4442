@@ -57,7 +57,7 @@ def get_records_with_date(driver_id, date):
 
 @application.route("/liveView")
 def liveView():
- return render_template("liveView.html")
+    return render_template("liveView.html")
 
 tmp_time = 0
 
