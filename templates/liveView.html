@@ -53,7 +53,6 @@
           <th>Car Plate</th>
           <th>Time</th>
           <th>Speed (km/h)</th>
-          <th>Overspeed</th>
         </tr>
       </thead>
       <tbody id="liveRecord">
@@ -117,10 +116,10 @@
 
 
             updateTable(data);
-            data.forEach(function (entry) {
-              var time = new Date(entry[3] * 1000);
+            data.forEach(function (data) {
+              var time = new Date(data[3] * 1000);
               time.setHours(time.getHours() + 8);
-              var speed = parseFloat(entry[4]);
+              var speed = parseFloat(data[4]);
               console.log(time.getTime());
               chart.series[0].addPoint([time.getTime(), speed], true, false);
               chart.xAxis[0].setExtremes(null, null);
@@ -130,10 +129,10 @@
             window.chartUpdateInterval = setInterval(function () {
               $.getJSON(`/liveData?driver_id=${driverId}`, function (newData) {
                 updateTable(newData);
-                newData.forEach(function (newEntry) {
-                  var newTime = new Date(newEntry[3] * 1000);
+                newData.forEach(function (newData) {
+                  var newTime = new Date(newData[3] * 1000);
                   newTime.setHours(newTime.getHours() + 8);
-                  var newSpeed = parseFloat(newEntry[4]);
+                  var newSpeed = parseFloat(newData[4]);
                   chart.series[0].addPoint([newTime.getTime(), newSpeed], true, false);
                   chart.xAxis[0].setExtremes(null, null);
 
@@ -164,8 +163,8 @@
           table.empty();
 
           // filter for overspeed records 
-          var overspeedRecords = data.filter(function (entry) {
-            return entry[5];
+          var overspeedRecords = data.filter(function (data) {
+            return data[5];
           });
 
           // sort records
@@ -175,14 +174,13 @@
 
           var latest20Records = overspeedRecords.slice(0, 20);
 
-          latest20Records.forEach(function (entry) {
-            var time = new Date(entry[3] * 1000);
+          latest20Records.forEach(function (data) {
+            var time = new Date(data[3] * 1000);
             var row = `<tr>
-              <td>${entry[1]}</td>
-              <td>${entry[2]}</td>
+              <td>${data[1]}</td>
+              <td>${data[2]}</td>
               <td>${time.toLocaleString()}</td>
-              <td>${parseFloat(entry[4]).toFixed(2)} km/h</td>
-              <td style="color: red;">Yes, please drive slower!</td>
+              <td>${parseFloat(data[4]).toFixed(2)} km/h</td>
             </tr>`;
             table.append(row);
           });
