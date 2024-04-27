@@ -27,40 +27,49 @@ def db_connection():
 mydb = db_connection()
 cur = mydb.cursor()
 
-engine = create_engine(f'mysql+mysqldb://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_name}')
-@app.route("/")
+@application.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/api/ids")
+@application.route("/api/ids")
 def get_ids():
-    query = "SELECT distinct driver_id FROM Driving_Record_A"
-    ids = pd.read_sql(query, engine)
-    return ids.to_json(orient='records')
+    sql = "SELECT distinct driver_id FROM Driving_Record_A"
+    cur.execute(sql)
+    ids = cur.fetchall()
+    df = pd.DataFrame(ids)
+    df.columns = ['driver_id']    
+    return df.to_json(orient='records')
 
 
-@app.route("/api/records/<driver_id>")
+@application.route("/api/records/<driver_id>")
 def get_records(driver_id):
     query = f"SELECT * FROM Driving_Record_A WHERE driver_id = '{driver_id}' ORDER BY date, hour"
-    records = pd.read_sql(query, engine)
-    records['Hour'] = records['Hour'].apply(lambda x: f"{str(x).zfill(2)}:00")
+    cur.execute(query)
+    records = cur.fetchall()
+    records = pd.DataFrame(records)
+    records[4] = records[4].apply(lambda x: f"{str(x).zfill(2)}:00")
     #adding (s) to the end of the data to make it more readable
-    records['TotalOfOverSpeedTime'] = records['TotalOfOverSpeedTime'].apply(lambda x: f"{x}(s)")
-    records['TotalNeturalSlideTime'] = records['TotalNeturalSlideTime'].apply(lambda x: f"{x}(s)")
+    records[5] = records[5].apply(lambda x: f"{x}(s)")
+    records[7] = records[7].apply(lambda x: f"{x}(s)")
     
-    return records.to_json(orient='records')
+    df = pd.DataFrame(records)
+    return df.to_json(orient='records')
     
 
-@app.route("/api/records/<driver_id>/<date>")
+@application.route("/api/records/<driver_id>/<date>")
 def get_records_with_date(driver_id, date):
     query = f"SELECT * FROM Driving_Record_A WHERE driver_id = '{driver_id}' AND date = '{date}' ORDER BY date, hour"
-    records = pd.read_sql(query, engine)
-    records['Hour'] = records['Hour'].apply(lambda x: f"{str(x).zfill(2)}:00")
+    cur.execute(query)
+    records = cur.fetchall()
+    records = pd.DataFrame(records)
+    records[4] = records[4].apply(lambda x: f"{str(x).zfill(2)}:00")
     #adding (s) to the end of the data to make it more readable
-    records['TotalOfOverSpeedTime'] = records['TotalOfOverSpeedTime'].apply(lambda x: f"{x}(s)")
-    records['TotalNeturalSlideTime'] = records['TotalNeturalSlideTime'].apply(lambda x: f"{x}(s)")
-    
-    return records.to_json(orient='records')
+    records[5] = records[5].apply(lambda x: f"{x}(s)")
+    records[7] = records[7].apply(lambda x: f"{x}(s)")
+
+    df = pd.DataFrame(records)
+
+    return df.to_json(orient='records')
 
 @application.route("/liveView")
 def liveView():
@@ -96,4 +105,4 @@ def get_drivers():
     return json.dumps(drivers)
 
 if __name__ == "__main__":
-	application.run(port=5000)
+	application.run(port=5001)
