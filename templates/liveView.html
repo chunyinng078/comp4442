@@ -95,6 +95,8 @@
         function updateChartData(driverId) {
           var chart = $('#container').highcharts();
           chart.series[0].setData([]);
+          chart.xAxis[0].setExtremes(null, null);
+
           if (window.chartUpdateInterval) clearInterval(window.chartUpdateInterval);
 
           $.getJSON(`/liveData?driver_id=${driverId}`, function (data) {
@@ -121,6 +123,8 @@
               var speed = parseFloat(entry[4]);
               console.log(time.getTime());
               chart.series[0].addPoint([time.getTime(), speed], true, false);
+              chart.xAxis[0].setExtremes(null, null);
+
             });
 
             window.chartUpdateInterval = setInterval(function () {
@@ -131,6 +135,8 @@
                   newTime.setHours(newTime.getHours() + 8);
                   var newSpeed = parseFloat(newEntry[4]);
                   chart.series[0].addPoint([newTime.getTime(), newSpeed], true, false);
+                  chart.xAxis[0].setExtremes(null, null);
+
                 });
               });
             }, 30000);
