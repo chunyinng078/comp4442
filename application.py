@@ -6,7 +6,7 @@ import json
 from flask import Flask, request, render_template
 load_dotenv()
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 def db_connection():
     mydb = mysql.connector.connect( host = os.getenv('DB_HOST'),
@@ -20,18 +20,18 @@ def db_connection():
 mydb = db_connection()
 cur = mydb.cursor()
 
-@app.route("/")
-@app.route("/report")
+@application.route("/")
+@application.route("/report")
 def report():
  return render_template("report.html")
 
-@app.route("/liveView")
+@application.route("/liveView")
 def liveView():
  return render_template("liveView.html")
 
 tmp_time = 0
 
-@app.route('/liveData')
+@application.route('/liveData')
 def getData():
     global tmp_time
     driver_id = request.args.get('driver_id')
@@ -43,14 +43,14 @@ def getData():
     cur.execute(sql)
     datas = []
     for i in cur.fetchall():
-        datas.append([i[0], i[1], i[2], i[3], i[4], i[5]])
+        datas.applicationend([i[0], i[1], i[2], i[3], i[4], i[5]])
     
     if len(datas) > 0 :
         tmp_time = datas[-1][0]
     
     return json.dumps(datas)
     
-@app.route('/drivers')
+@application.route('/drivers')
 def get_drivers():
     sql = "SELECT DISTINCT driver_id FROM Driving_Record_B"
     cur.execute(sql)
@@ -59,4 +59,4 @@ def get_drivers():
     return json.dumps(drivers)
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0', port=5000)
+	application.run(port=5000)
