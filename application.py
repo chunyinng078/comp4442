@@ -20,10 +20,40 @@ def db_connection():
 mydb = db_connection()
 cur = mydb.cursor()
 
-@application.route("/")
-@application.route("/report")
-def report():
- return render_template("report.html")
+engine = create_engine(f'mysql+mysqldb://{db_user}:{db_passwd}@{db_host}:{db_port}/{db_name}')
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/api/ids")
+def get_ids():
+    query = "SELECT distinct driver_id FROM Driving_Record_A"
+    ids = pd.read_sql(query, engine)
+    return ids.to_json(orient='records')
+
+
+@app.route("/api/records/<driver_id>")
+def get_records(driver_id):
+    query = f"SELECT * FROM Driving_Record_A WHERE driver_id = '{driver_id}' ORDER BY date, hour"
+    records = pd.read_sql(query, engine)
+    records['Hour'] = records['Hour'].apply(lambda x: f"{str(x).zfill(2)}:00")
+    #adding (s) to the end of the data to make it more readable
+    records['TotalOfOverSpeedTime'] = records['TotalOfOverSpeedTime'].apply(lambda x: f"{x}(s)")
+    records['TotalNeturalSlideTime'] = records['TotalNeturalSlideTime'].apply(lambda x: f"{x}(s)")
+    
+    return records.to_json(orient='records')
+    
+
+@app.route("/api/records/<driver_id>/<date>")
+def get_records_with_date(driver_id, date):
+    query = f"SELECT * FROM Driving_Record_A WHERE driver_id = '{driver_id}' AND date = '{date}' ORDER BY date, hour"
+    records = pd.read_sql(query, engine)
+    records['Hour'] = records['Hour'].apply(lambda x: f"{str(x).zfill(2)}:00")
+    #adding (s) to the end of the data to make it more readable
+    records['TotalOfOverSpeedTime'] = records['TotalOfOverSpeedTime'].apply(lambda x: f"{x}(s)")
+    records['TotalNeturalSlideTime'] = records['TotalNeturalSlideTime'].apply(lambda x: f"{x}(s)")
+    
+    return records.to_json(orient='records')
 
 @application.route("/liveView")
 def liveView():
