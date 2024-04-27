@@ -9,12 +9,18 @@ load_dotenv()
 
 application = Flask(__name__)
 
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_passwd = os.getenv('DB_PASSWD')
+db_name = os.getenv('DB_NAME')
+db_port = os.getenv('DB_PORT')
+
 def db_connection():
-    mydb = mysql.connector.connect( host = os.getenv('DB_HOST'),
-    user = os.getenv('DB_USER'),
-    port = os.getenv('DB_PORT'),
-    database = os.getenv('DB_NAME'),
-    passwd = os.getenv('DB_PASSWD'),
+    mydb = mysql.connector.connect( host = db_host,
+    user = db_user ,
+    port = db_port,
+    database = db_name,
+    passwd = db_passwd,
     autocommit = True)
     return mydb
 
