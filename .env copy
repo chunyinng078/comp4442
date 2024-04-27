@@ -1,0 +1,5 @@
+DB_HOST=database-1.cjb6intx7dll.us-east-1.rds.amazonaws.com
+DB_USER=cloudadmin999
+DB_PASSWD=cloudroot999
+DB_NAME=comp4442_project 
+DB_PORT=3306
