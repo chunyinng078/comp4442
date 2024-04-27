@@ -84,6 +84,7 @@
           }
         });
 
+        // update chart data
         function updateChartData(driverId) {
           var chart = $('#container').highcharts();
           chart.series[0].setData([]);
@@ -98,7 +99,7 @@
             time.setHours(time.getHours() - 8);
             document.getElementById("time").innerText = `Time: ${time}`;
             document.getElementById("speed").innerText = `Speed: ${speed} km/h`;
-            document.getElementById("overspeed").innerText = `Over Speed: ${data[0][5] ? "Yes" : "No"}`;
+            document.getElementById("overspeed").innerText = `Overspeed: ${data[0][5] ? "Yes" : "No"}`;
             if (data[0][5]) {
               document.getElementById("overspeed").style.color = "red";
             } else {
@@ -129,6 +130,7 @@
           });
         }
 
+        // update table
         function updateTable(data) {
           var time = new Date(data[0][3] * 1000);
           time.setHours(time.getHours() + 8);
@@ -138,7 +140,7 @@
           time.setHours(time.getHours() - 8);
           document.getElementById("time").innerText = `Time: ${time}`;
           document.getElementById("speed").innerText = `Speed: ${speed} km/h`;
-          document.getElementById("overspeed").innerText = `Over Speed: ${data[0][5] ? "Yes" : "No"}`;
+          document.getElementById("overspeed").innerText = `Overspeed: ${data[0][5] ? "Yes" : "No"}`;
           if (data[0][5]) {
             document.getElementById("overspeed").style.color = "red";
           } else {
