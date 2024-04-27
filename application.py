@@ -43,7 +43,7 @@ def getData():
     cur.execute(sql)
     datas = []
     for i in cur.fetchall():
-        datas.applicationend([i[0], i[1], i[2], i[3], i[4], i[5]])
+        datas.append([i[0], i[1], i[2], i[3], i[4], i[5]])
     
     if len(datas) > 0 :
         tmp_time = datas[-1][0]
