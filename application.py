@@ -6,7 +6,7 @@ import json
 from flask import Flask, request, render_template
 load_dotenv()
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 
 def db_connection():
     mydb = mysql.connector.connect( host = os.getenv('DB_HOST'),
@@ -59,4 +59,4 @@ def get_drivers():
     return json.dumps(drivers)
 
 if __name__ == "__main__":
-	app.run(port=8000)
+	app.run(host='0.0.0.0', port=5000)
