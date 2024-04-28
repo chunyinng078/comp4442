@@ -167,14 +167,7 @@
             return data[5];
           });
 
-          // sort records
-          overspeedRecords.sort(function (a, b) {
-            return b[3] - a[3];
-          });
-
-          var latest20Records = overspeedRecords.slice(0, 20);
-
-          latest20Records.forEach(function (data) {
+          overspeedRecords.forEach(function (data) {
             var time = new Date(data[3] * 1000);
             var row = `<tr>
               <td>${data[1]}</td>
