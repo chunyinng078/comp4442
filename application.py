@@ -81,9 +81,9 @@ def getData():
     global tmp_time
     driver_id = request.args.get('driver_id')
     if tmp_time > 0 :
-        sql = "select * from Driving_Record_B where driver_id = '%s' AND  ctime >%s order by ctime desc LIMIT 60" %(driver_id, tmp_time)
+        sql = "select * from Driving_Record_B where driver_id = '%s' AND  ctime >%s order by ctime desc LIMIT 30" %(driver_id, tmp_time)
     else:
-        sql = "select * from Driving_Record_B where driver_id = '%s' order by ctime desc LIMIT 60" %(driver_id)
+        sql = "select * from Driving_Record_B where driver_id = '%s' order by ctime desc LIMIT 30" %(driver_id)
         
     cur.execute(sql)
     datas = []
